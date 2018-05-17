@@ -28,6 +28,7 @@
     <script src="https://magicbox.bkclouds.cc/static_api/v3/bk/js/bk.js"></script>
     <!-- 数据埋点统计 -->
     <script src="https://magicbox.bkclouds.cc/static_api/analysis.js"></script>
+    <script src="${STATIC_URL}js/csrftoken.js"></script>
     <!-- 以下两个插件用于在IE8以及以下版本浏览器支持HTML5元素和媒体查询，如果不需要用可以移除 -->
     <!--[if lt IE 9]><script src="https://magicbox.bkclouds.cc/static_api/v3/assets/js/html5shiv.min.js"></script><script src="https://magicbox.bkclouds.cc/static_api/v3/assets/js/respond.min.js"></script><![endif]-->
 </head>
@@ -70,23 +71,23 @@
                         <div class="form-group clearfix ">
                             <label class="col-sm-3 control-label bk-lh30 pt0">乘数：</label>
                             <div class="col-sm-9">
-                                <input type="text" class="form-control bk-valign-top" id="" placeholder="请输入乘数"> </div>
+                                <input type="text" class="form-control bk-valign-top" id="multiplier" placeholder="请输入乘数"> </div>
                         </div>
                         <div class="form-group clearfix ">
                             <label class="col-sm-3 control-label bk-lh30 pt0">被乘数：</label>
                             <div class="col-sm-9">
-                                <input type="text" class="form-control bk-valign-top" id="" placeholder="请输入被乘数"> </div>
+                                <input type="text" class="form-control bk-valign-top" id="mutiplicand" placeholder="请输入被乘数"> </div>
                         </div>
                         <div class="form-group clearfix">
                             <div class="col-sm-9 col-sm-offset-3">
-                                <button type="button" class="king-btn mr10  king-success">计算</button>
+                                <button type="button" class="king-btn mr10  king-success" id="multi_computer">计算</button>
                                 <button type="button" class="king-btn king-default ">重置</button>
                             </div>
                         </div>
                         <div class="king-widget1  m0">
                             <div class="king-widget2-content p25">
                                 <div class="king-counter king-counter-lg">
-                                    <span class="king-counter-number">606</span>
+                                    <span class="king-counter-number" id="multi_result"></span>
                                     <div class="king-counter-label text-uppercase"></div>
                                 </div>
                             </div>
@@ -140,26 +141,6 @@
                             </tr>
                         </tbody>
                     </table>
-                    <!-- 设置面板Start -->
-                    <template id="header_tpl_1526357566744">
-                        <tr>
-                            <th style="width: 100px;">#index#</th>
-                            <th style="width: 20%;">#task#</th>
-                            <th style="width: 20%;">#progress#</th>
-                            <th style="width: 20%;">#host#</th>
-                            <th>#date#</th>
-                        </tr>
-                    </template>
-                    <template id="tpl_1526357566744">
-                        <tr>
-                            <td style="width: 100px;">#index#</td>
-                            <td style="width: 20%;">#columnName1#</td>
-                            <td style="width: 20%;">#columnName2#</td>
-                            <td style="width: 20%;">#columnName3#</td>
-                            <td>#columnName4#</td>
-                        </tr>
-                    </template>
-                    <!-- 设置面板End -->
                 </div>
             </div>
         </div>
@@ -167,36 +148,20 @@
     </div>
     <script>
         $(function(){
-                function renderTpl(str, cfg) {
-                    var re = /(#(.+?)#)/g;
-
-                    return str.replace(re, function() {
-                        var val = cfg[arguments[2]]+'';
-                        if(typeof val == 'undefined') {
-                            val = '';
-                        }
-                        return val;
-                    });
+            $("#multi_computer").click(function(){
+               var multiplier =  $("#multiplier").val();
+               var mutiplicand = $("#mutiplicand").val();
+               .post("${SITE_URL}multi_computer",{
+                'multiplier':multiplier
+                'mutiplicand':mutiplicand
+               },function(res){
+                if(res.result){
+                    $("#multi_result").html(res.multi_result)
                 }
+               },"json")
+            })
 
-                // 异步请求后台数据
-                $.ajax({
-                    url: 'https://magicbox.bkclouds.cc/static_api/v3/components/table6/data.json',
-                    type: 'GET',
-                    success: function(res){
-                        var _html = ' ';
-                        var list = res.items;
-                        var tpl = $('#tpl_1526357566744').html();
-                        var headerTpl =  $('#header_tpl_1526357566744').html();
-                        for (var i=0,len=list.length; i < len; i++){
-                            var item = list[i];
-                            _html += renderTpl(tpl, item)
-                        }
-                        $('#code_1526357566744 tbody').html(_html);
-                        $('.ranger-box thead').html(renderTpl(headerTpl,res.catalogues));
-                    }
-                });
-            });
+        })
     </script>
 </body>
 
